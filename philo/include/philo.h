@@ -59,7 +59,6 @@ void	init_threads(int i, t_all *all, int number_of_philo);
 void	*start_routine(void *arg);
 void	make_action(char *str, t_philo *philo);
 long	time_in_ms(void);
-void	make_action(char *str);
-int    time_in_ms(void);
+void	make_action(char *str, t_philo *philo);
 
 #endif

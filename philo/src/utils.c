@@ -36,7 +36,7 @@ long	ft_modified_atol(char *str)
     {
         last_digit = *str - '0';
         if (result > (2147483647 - last_digit) / 10)
-            write(2, "Overflow!", 9);
+            write(2, "Overflow!\n", 10);
         result = result * 10 + last_digit;
 		str++;
     }
