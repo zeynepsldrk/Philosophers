@@ -40,6 +40,7 @@ void	*start_routine(void *arg)
 	long eat_start;
 	long sleep_start;
 
+
 	philo = (t_philo*)arg;
 	while (!philo->all->someone_died)
 	{
@@ -76,6 +77,16 @@ void	*start_routine(void *arg)
 			make_action("thinking", philo);
 		}
 	}
+	if (philo->left_fork_id < philo->right_fork_id)
+    {
+        pthread_mutex_lock(philo->left_fork);
+        pthread_mutex_lock(philo->right_fork);
+    }
+    else
+    {
+        pthread_mutex_lock(philo->right_fork);
+        pthread_mutex_lock(philo->left_fork);
+    }
 	return (NULL);
 }
 
@@ -86,6 +97,8 @@ void	init_threads(int i, t_all *all, int number_of_philo)
 	all->philo[i].right_fork = &all->forks[(i + 1) % number_of_philo];
 	all->philo[i].l_fork_id = i;
 	all->philo[i].r_fork_id = (i + 1) % number_of_philo;
+    all->philo[i].left_fork_id = i;
+    all->philo[i].right_fork_id = (i + 1) % number_of_philo;
 	all->philo[i].meal_count = 0;
 	all->philo[i].all = all;
 }
@@ -103,6 +116,7 @@ void	start_philosophers(t_all *all, long number_of_philo)
     while (count > 0)
     {
 		pthread_mutex_init(&all->forks[i], NULL);
+        pthread_mutex_init(&all->forks[i], NULL);
 		init_threads(i, all, number_of_philo);
         pthread_create(&all->philo[i].philos, NULL, start_routine, &all->philo[i]);
         i++;
@@ -123,7 +137,7 @@ int	main(int argc, char **argv)
 {
     if (argc != 5 && argc != 6)
 	{
-		write(2, "Wrong argument number!", 23);
+		write(2, "Wrong argument number!\n", 24);
 		return (1);
 	}
     int i;
@@ -133,7 +147,7 @@ int	main(int argc, char **argv)
     while (argv[i])
     {
         if (!ft_isdigit(argv[i]))
-            write(2, "Invalid argument!", 18);
+            write(2, "Invalid argument!\n", 19);
         i++;
     }
     all.number_of_philo = ft_modified_atol(argv[1]);
