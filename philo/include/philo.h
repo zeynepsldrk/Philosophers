@@ -41,8 +41,13 @@ typedef struct s_philo
     int philo_id;
     pthread_mutex_t *left_fork;
     pthread_mutex_t *right_fork;
+<<<<<<< HEAD
 	int l_fork_id;
 	int r_fork_id;
+=======
+    int left_fork_id;
+    int right_fork_id;
+>>>>>>> 948bb67 (add forks id for share the forks)
     long meal_count;
     t_all *all;
 } t_philo;
