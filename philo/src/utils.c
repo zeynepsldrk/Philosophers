@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 13:46:09 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/01 13:51:22 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/03 14:42:42 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,16 @@ int	str_cmp(char *s1, char *s2)
 	while (s1[i] && s2[i] && s1[i] == s2[i])
 		i++;
 	return (s1[i] - s2[i]);
+}
+
+long	time_in_ms(void)
+{
+	struct timeval  tv;
+	long            milliseconds;
+
+	gettimeofday(&tv, NULL);
+	milliseconds = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+	return (milliseconds);
 }
 
 void free_and_destroy(t_all *all)
