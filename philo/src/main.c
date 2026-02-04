@@ -12,26 +12,24 @@
 
 #include "philo.h"
 
-void	make_action(char *str, t_philo *philo)
+void	make_action(char *str, t_philo *philo, long action_time)
 {
-	if(str_cmp(str, "eating") == 0)
+    if(philo->all->someone_died)
+        return ;
+    if(str_cmp(str, "eating") == 0)
 	{
-		if (philo->l_fork_id < philo->r_fork_id)
-			printf("%d and %d forks taken\n", philo->l_fork_id, philo->r_fork_id);
-		else
-			printf("%d and %d forks taken\n", philo->r_fork_id, philo->l_fork_id);
-		printf("I'm eating..\n");
+		printf("%ld %d is eating\n", action_time - philo->all->start_time, philo->philo_id);
+        while ((time_in_ms() - action_time) < philo->all->time_to_eat)
+            usleep(500);
 	}
 	if(str_cmp(str, "sleeping") == 0)
 	{
-		if (philo->l_fork_id < philo->r_fork_id)
-			printf("%d and %d forks put down\n", philo->l_fork_id, philo->r_fork_id);
-		else
-			printf("%d and %d forks put down\n", philo->r_fork_id, philo->l_fork_id);
-		printf("I'm sleeping..\n");
+		printf("%ld %d is sleeping\n", action_time - philo->all->start_time, philo->philo_id);
+        while ((time_in_ms() - action_time) < philo->all->time_to_sleep)
+            usleep(500);
 	}
 	if(str_cmp(str, "thinking") == 0)
-		write(1, "I'm thinking..\n", 16);
+		printf("%ld %d is thinking\n", time_in_ms() - philo->all->start_time, philo->philo_id);
 }
 
 void	*start_routine(void *arg)
@@ -47,36 +45,34 @@ void	*start_routine(void *arg)
 		if (philo->l_fork_id < philo->r_fork_id)
 		{
 			pthread_mutex_lock(philo->left_fork);
+            printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
 			pthread_mutex_lock(philo->right_fork);
+            printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
 			eat_start = time_in_ms();
-			philo->last_meal_time = time_in_ms();
-			philo->meal_count++;
-			make_action("eating", philo);
-			while (philo->all->someone_died == 0 && (time_in_ms() - eat_start) < philo->all->time_to_eat)
-				usleep(100);
+			make_action("eating", philo, eat_start);
+            philo->last_meal_time = time_in_ms(); //yemek bittinyo
+            philo->meal_count++;
 			pthread_mutex_unlock(philo->right_fork);
 			pthread_mutex_unlock(philo->left_fork);
 			sleep_start = time_in_ms();
-			make_action("sleeping", philo);
-			while (philo->all->someone_died == 0 && (time_in_ms() - sleep_start) < philo->all->time_to_sleep)
-				usleep(100);
-			make_action("thinking", philo);
+			make_action("sleeping", philo, sleep_start);
+			make_action("thinking", philo, 0);
 		}
 		else
 		{
 			pthread_mutex_lock(philo->right_fork);
+            printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
 			pthread_mutex_lock(philo->left_fork);
+            printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
 			eat_start = time_in_ms();
-			make_action("eating", philo);
-			while (philo->all->someone_died == 0 && (time_in_ms() - eat_start) < philo->all->time_to_eat)
-				usleep(100);
+			make_action("eating", philo, eat_start);
+            philo->last_meal_time = time_in_ms();
+            philo->meal_count++;
 			pthread_mutex_unlock(philo->left_fork);
 			pthread_mutex_unlock(philo->right_fork);
 			sleep_start = time_in_ms();
-			make_action("sleeping", philo);
-			while (philo->all->someone_died == 0 && (time_in_ms() - sleep_start) < philo->all->time_to_sleep)
-				usleep(100);
-			make_action("thinking", philo);
+			make_action("sleeping", philo, sleep_start);
+			make_action("thinking", philo, 0);
 		}
 	}
 	return (NULL);
