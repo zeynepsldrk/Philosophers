@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 16:47:11 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/03 15:47:57 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/04 16:09:58 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ typedef struct s_philo
     int left_fork_id;
     int right_fork_id;
     long meal_count;
+	long last_meal_time;
     t_all *all;
 } t_philo;
 
