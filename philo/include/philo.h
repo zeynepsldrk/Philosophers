@@ -58,8 +58,7 @@ void	free_and_destroy(t_all *all);
 void	start_philosophers(t_all *all, long number_of_philo);
 void	init_threads(int i, t_all *all, int number_of_philo);
 void	*start_routine(void *arg);
-void	make_action(char *str, t_philo *philo);
+void	make_action(char *str, t_philo *philo, long action_time);
 long	time_in_ms(void);
-void	make_action(char *str, t_philo *philo);
 
 #endif
