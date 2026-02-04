@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/17 17:49:07 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/03 16:48:39 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/04 16:12:57 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ void	*start_routine(void *arg)
 			pthread_mutex_lock(philo->left_fork);
 			pthread_mutex_lock(philo->right_fork);
 			eat_start = time_in_ms();
+			philo->last_meal_time = time_in_ms();
+			philo->meal_count++;
 			make_action("eating", philo);
 			while (philo->all->someone_died == 0 && (time_in_ms() - eat_start) < philo->all->time_to_eat)
 				usleep(100);
@@ -77,16 +79,6 @@ void	*start_routine(void *arg)
 			make_action("thinking", philo);
 		}
 	}
-	if (philo->left_fork_id < philo->right_fork_id)
-    {
-        pthread_mutex_lock(philo->left_fork);
-        pthread_mutex_lock(philo->right_fork);
-    }
-    else
-    {
-        pthread_mutex_lock(philo->right_fork);
-        pthread_mutex_lock(philo->left_fork);
-    }
 	return (NULL);
 }
 
@@ -103,32 +95,39 @@ void	init_threads(int i, t_all *all, int number_of_philo)
 	all->philo[i].all = all;
 }
 
+/*
+join etmeden önce bir thread'in ölüp ölmediğini kontrol etmemiz gerekiyor. 
+Eğer bir thread öldüyse, diğer thread'lerin de ölmesini sağlamamız gerekiyor. 
+Bunu yapmak için, her thread'in son yemeğinden itibaren geçen süreyi kontrol edebiliriz. 
+Eğer bu süre, time_to_die süresini aşarsa, o thread'in öldüğünü varsayabiliriz ve 
+all->someone_died değişkenini 1 yaparak diğer thread'lerin de ölmesini sağlayabiliriz.
+*/
+
 void	start_philosophers(t_all *all, long number_of_philo)
 {
     int i;
-    int count;
 
-    count = number_of_philo;
     i = 0;
     all->philo = malloc(sizeof(t_philo)*number_of_philo);
     all->forks = malloc(sizeof(pthread_mutex_t)*number_of_philo);
 	all->start_time = time_in_ms();
-    while (count > 0)
+    while (i < number_of_philo)
     {
 		pthread_mutex_init(&all->forks[i], NULL);
-        pthread_mutex_init(&all->forks[i], NULL);
 		init_threads(i, all, number_of_philo);
         pthread_create(&all->philo[i].philos, NULL, start_routine, &all->philo[i]);
         i++;
-        count--;
     }
-    count = number_of_philo;
+	while (!is_anyone_dead(all))
+	{
+		free_and_destroy(all);
+		break;
+	}
     i = 0;
-    while (count)
+    while (i < number_of_philo)
     {
         pthread_join(all->philo[i].philos, NULL);
         i++;
-        count--;
     }
 	free_and_destroy(all);
 }
