@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-void	make_action(char *str, t_philo *philo, long action_time)
+void	print_action(char *str, t_philo *philo, long action_time)
 {
     if(philo->all->someone_died)
         return ;
@@ -20,84 +20,74 @@ void	make_action(char *str, t_philo *philo, long action_time)
 	{
 		printf("%ld %d is eating\n", action_time - philo->all->start_time, philo->philo_id);
         while ((time_in_ms() - action_time) < philo->all->time_to_eat)
+        {
+            if (philo->all->someone_died)
+                break;
             usleep(500);
+        }
 	}
 	if(str_cmp(str, "sleeping") == 0)
 	{
 		printf("%ld %d is sleeping\n", action_time - philo->all->start_time, philo->philo_id);
         while ((time_in_ms() - action_time) < philo->all->time_to_sleep)
+        {
+            if (philo->all->someone_died)
+                break;
             usleep(500);
+        }
 	}
 	if(str_cmp(str, "thinking") == 0)
 		printf("%ld %d is thinking\n", time_in_ms() - philo->all->start_time, philo->philo_id);
 }
 
+void make_action(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
+{
+	while (!philo->all->someone_died)
+	{
+        which_fork_first(philo, &first_fork, &second_fork);
+        pthread_mutex_lock(first_fork);
+        if (status_check(philo, first_fork, second_fork))
+            break;
+        printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
+        pthread_mutex_lock(second_fork);
+        if (status_check(philo, first_fork, second_fork))
+            break;
+        printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
+        philo->eat_start = time_in_ms();
+        print_action("eating", philo, philo->eat_start);
+        if (philo->all->someone_died)
+            break;
+        philo->last_meal_time = time_in_ms();
+        philo->meal_count++;
+        pthread_mutex_unlock(second_fork);
+        pthread_mutex_unlock(first_fork);
+        philo->sleep_start = time_in_ms();
+        print_action("sleeping", philo, philo->sleep_start);
+        if (philo->all->someone_died)
+            break;
+        print_action("thinking", philo, 0);
+	}
+}
+
 void	*start_routine(void *arg)
 {
 	t_philo *philo;
-	long eat_start;
-	long sleep_start;
+    pthread_mutex_t *first_fork;
+    pthread_mutex_t *second_fork;
 
-
+    first_fork = NULL;
+    second_fork = NULL;
 	philo = (t_philo*)arg;
-	while (!philo->all->someone_died)
-	{
-		if (philo->l_fork_id < philo->r_fork_id)
-		{
-			pthread_mutex_lock(philo->left_fork);
-            printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
-			pthread_mutex_lock(philo->right_fork);
-            printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
-			eat_start = time_in_ms();
-			make_action("eating", philo, eat_start);
-            philo->last_meal_time = time_in_ms(); //yemek bittinyo
-            philo->meal_count++;
-			pthread_mutex_unlock(philo->right_fork);
-			pthread_mutex_unlock(philo->left_fork);
-			sleep_start = time_in_ms();
-			make_action("sleeping", philo, sleep_start);
-			make_action("thinking", philo, 0);
-		}
-		else
-		{
-			pthread_mutex_lock(philo->right_fork);
-            printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
-			pthread_mutex_lock(philo->left_fork);
-            printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
-			eat_start = time_in_ms();
-			make_action("eating", philo, eat_start);
-            philo->last_meal_time = time_in_ms();
-            philo->meal_count++;
-			pthread_mutex_unlock(philo->left_fork);
-			pthread_mutex_unlock(philo->right_fork);
-			sleep_start = time_in_ms();
-			make_action("sleeping", philo, sleep_start);
-			make_action("thinking", philo, 0);
-		}
-	}
+    if (philo->all->number_of_philo == 1)
+        only_one_philo(philo);
+    if (philo->all->number_of_philo % 2 == 1)
+    {
+        if(philo->all->number_of_philo == philo->philo_id)
+            usleep(philo->all->time_to_eat * 500);
+    }
+    make_action(philo, first_fork, second_fork);
 	return (NULL);
 }
-
-void	init_threads(int i, t_all *all, int number_of_philo)
-{
-	all->philo[i].philo_id = i + 1;
-	all->philo[i].left_fork = &all->forks[i];
-	all->philo[i].right_fork = &all->forks[(i + 1) % number_of_philo];
-	all->philo[i].l_fork_id = i;
-	all->philo[i].r_fork_id = (i + 1) % number_of_philo;
-    all->philo[i].left_fork_id = i;
-    all->philo[i].right_fork_id = (i + 1) % number_of_philo;
-	all->philo[i].meal_count = 0;
-	all->philo[i].all = all;
-}
-
-/*
-join etmeden önce bir thread'in ölüp ölmediğini kontrol etmemiz gerekiyor. 
-Eğer bir thread öldüyse, diğer thread'lerin de ölmesini sağlamamız gerekiyor. 
-Bunu yapmak için, her thread'in son yemeğinden itibaren geçen süreyi kontrol edebiliriz. 
-Eğer bu süre, time_to_die süresini aşarsa, o thread'in öldüğünü varsayabiliriz ve 
-all->someone_died değişkenini 1 yaparak diğer thread'lerin de ölmesini sağlayabiliriz.
-*/
 
 void	start_philosophers(t_all *all, long number_of_philo)
 {
@@ -105,18 +95,11 @@ void	start_philosophers(t_all *all, long number_of_philo)
 
     i = 0;
     all->philo = malloc(sizeof(t_philo)*number_of_philo);
-    if (!all->philo)
-    {
-        write(2, "Malloc error!\n", 13);
-        return ;
-    }
+    if (malloc_error(all->philo, NULL))
+		return ;
     all->forks = malloc(sizeof(pthread_mutex_t)*number_of_philo);
-    if (!all->forks)
-    {
-        write(2, "Malloc error!\n", 13);
-        free(all->philo);
-        return ;
-    }
+    if (malloc_error(all->forks, all->philo))
+	    return ;
 	all->start_time = time_in_ms();
     while (i < number_of_philo)
     {
@@ -129,10 +112,9 @@ void	start_philosophers(t_all *all, long number_of_philo)
 	while (!is_anyone_dead(all))
         usleep(1000);
     i = 0;
-    while (i < number_of_philo)
+    while (i++ < number_of_philo)
     {
         pthread_join(all->philo[i].philos, NULL);
-        i++;
     }
 	free_and_destroy(all);
 }
