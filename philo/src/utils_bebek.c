@@ -28,12 +28,12 @@ int	is_anyone_dead(t_all *all)
             return (1);
         }
         i++;
-        if (all_eat_enough(all))
+    }
+    if (all_eat_enough(all))
         {
             all->someone_died = 1;
             return (1);
         }
-    }
     return (0);
 }
 
