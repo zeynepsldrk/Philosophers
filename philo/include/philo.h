@@ -43,10 +43,10 @@ typedef struct s_philo
     pthread_mutex_t *right_fork;
 	int l_fork_id;
 	int r_fork_id;
-    int left_fork_id;
-    int right_fork_id;
     long meal_count;
 	long last_meal_time;
+    long eat_start;
+    long sleep_start;
     t_all *all;
 } t_philo;
 
@@ -55,10 +55,17 @@ int		ft_isdigit(char *str);
 long	ft_modified_atol(char *str);
 int		str_cmp(char *s1, char *s2);
 void	free_and_destroy(t_all *all);
+int	malloc_error(void *philos, void *forks);
 void	start_philosophers(t_all *all, long number_of_philo);
 void	init_threads(int i, t_all *all, int number_of_philo);
 void	*start_routine(void *arg);
-void	make_action(char *str, t_philo *philo, long action_time);
+void	print_action(char *str, t_philo *philo, long action_time);
 long	time_in_ms(void);
+int all_eat_enough(t_all *all);
+int	is_anyone_dead(t_all *all);
+void    only_one_philo(t_philo *philo);
+void make_action(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork);
+void which_fork_first(t_philo *philo, pthread_mutex_t **first_fork, pthread_mutex_t **second_fork);
+int status_check(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork);
 
 #endif
