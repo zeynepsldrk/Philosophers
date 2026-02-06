@@ -1,6 +1,6 @@
 NAME = philo
 
-SRCS = src/main.c src/utils.c
+SRCS = src/main.c src/utils.c src/init.c src/monitor.c
 OBJS = $(SRCS:.c=.o)
 
 INCLUDES = -I include
