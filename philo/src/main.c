@@ -105,20 +105,29 @@ void	start_philosophers(t_all *all, long number_of_philo)
 
     i = 0;
     all->philo = malloc(sizeof(t_philo)*number_of_philo);
+    if (!all->philo)
+    {
+        write(2, "Malloc error!\n", 13);
+        return ;
+    }
     all->forks = malloc(sizeof(pthread_mutex_t)*number_of_philo);
+    if (!all->forks)
+    {
+        write(2, "Malloc error!\n", 13);
+        free(all->philo);
+        return ;
+    }
 	all->start_time = time_in_ms();
     while (i < number_of_philo)
     {
 		pthread_mutex_init(&all->forks[i], NULL);
 		init_threads(i, all, number_of_philo);
+        all->philo[i].last_meal_time = all->start_time;
         pthread_create(&all->philo[i].philos, NULL, start_routine, &all->philo[i]);
         i++;
     }
 	while (!is_anyone_dead(all))
-	{
-		free_and_destroy(all);
-		break;
-	}
+        usleep(1000);
     i = 0;
     while (i < number_of_philo)
     {
