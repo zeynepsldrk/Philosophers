@@ -45,10 +45,11 @@ int status_check(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *s
 {
     if (philo->all->someone_died)
     {
-        pthread_mutex_unlock(first_fork);
+        if (first_fork)
+            pthread_mutex_unlock(first_fork);
         if (second_fork)
             pthread_mutex_unlock(second_fork);
-        return (1);
+        return 1;
     }
-    return (0);
+    return 0;
 }

@@ -46,7 +46,7 @@ void make_action(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *s
 	{
         which_fork_first(philo, &first_fork, &second_fork);
         pthread_mutex_lock(first_fork);
-        if (status_check(philo, first_fork, second_fork))
+        if (status_check(philo, first_fork, NULL))
             break;
         printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
         pthread_mutex_lock(second_fork);
@@ -54,11 +54,11 @@ void make_action(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *s
             break;
         printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
         philo->eat_start = time_in_ms();
-        print_action("eating", philo, philo->eat_start);
-        if (philo->all->someone_died)
-            break;
         philo->last_meal_time = time_in_ms();
         philo->meal_count++;
+        print_action("eating", philo, philo->eat_start);
+        if (status_check(philo, first_fork, second_fork))
+            break;
         pthread_mutex_unlock(second_fork);
         pthread_mutex_unlock(first_fork);
         philo->sleep_start = time_in_ms();
@@ -79,7 +79,10 @@ void	*start_routine(void *arg)
     second_fork = NULL;
 	philo = (t_philo*)arg;
     if (philo->all->number_of_philo == 1)
+    {
         only_one_philo(philo);
+        return NULL;
+    }
     if (philo->all->number_of_philo % 2 == 1)
     {
         if(philo->all->number_of_philo == philo->philo_id)
@@ -112,9 +115,10 @@ void	start_philosophers(t_all *all, long number_of_philo)
 	while (!is_anyone_dead(all))
         usleep(1000);
     i = 0;
-    while (i++ < number_of_philo)
+    while (i < number_of_philo)
     {
         pthread_join(all->philo[i].philos, NULL);
+        i++;
     }
 	free_and_destroy(all);
 }
