@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 13:46:09 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/03 14:42:42 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/07 22:05:53 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ void free_and_destroy(t_all *all)
 		i++;
 		count--;
 	}
+	pthread_mutex_destroy(&all->print_mutex);
 	free(all->philo);
 	free(all->forks);
 }
