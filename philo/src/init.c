@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils_bebek.c                                      :+:      :+:    :+:   */
+/*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:05:41 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/04 15:49:30 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/07 16:29:30 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 void    only_one_philo(t_philo *philo)
 {
     pthread_mutex_lock(philo->left_fork);
+	pthread_mutex_lock(&philo->all->print_mutex);
     printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
+	pthread_mutex_unlock(&philo->all->print_mutex);
     while (!philo->all->someone_died)
         usleep(1000);
     pthread_mutex_unlock(philo->left_fork);
