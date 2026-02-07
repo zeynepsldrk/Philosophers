@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 16:47:11 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/04 16:09:58 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/07 21:45:11 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ typedef struct s_all_things
     pthread_mutex_t *forks;
     long start_time;
 	int someone_died;
+	pthread_mutex_t print_mutex;
 } t_all;
 
 typedef struct s_philo
@@ -45,7 +46,6 @@ typedef struct s_philo
 	int r_fork_id;
     long meal_count;
 	long last_meal_time;
-    long eat_start;
     long sleep_start;
     t_all *all;
 } t_philo;
@@ -67,5 +67,6 @@ void    only_one_philo(t_philo *philo);
 void make_action(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork);
 void which_fork_first(t_philo *philo, pthread_mutex_t **first_fork, pthread_mutex_t **second_fork);
 int status_check(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork);
+void let_time_pass(t_philo *philo, long action_time, char *str);
 
 #endif
