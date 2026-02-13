@@ -5,7 +5,7 @@ OBJS = $(SRCS:.c=.o)
 
 INCLUDES = -I include
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -fsanitize=thread -g
+CFLAGS = -Wall -Wextra -Werror  -fsanitize=thread -g #-fsanitize=address
 
 all: $(NAME)
 
