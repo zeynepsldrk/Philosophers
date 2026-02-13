@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/17 17:49:07 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/13 16:28:33 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/13 19:48:37 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,10 @@ void make_action(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *s
 		pthread_mutex_lock(&philo->all->print_mutex);
         printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
 		pthread_mutex_unlock(&philo->all->print_mutex);
+		pthread_mutex_lock(&philo->meal_mutex);
         philo->last_meal_time = time_in_ms();
         philo->meal_count++;
+		pthread_mutex_unlock(&philo->meal_mutex);
         print_action("eating", philo, philo->last_meal_time);
         if (status_check(philo, first_fork, second_fork))
             break;
@@ -88,9 +90,9 @@ void	*start_routine(void *arg)
 
 void	start_philosophers(t_all *all, long number_of_philo)
 {
-    int i;
+	int i;
 
-    i = 0;
+	i = 0;
     all->philo = malloc(sizeof(t_philo)*number_of_philo);
     if (malloc_error(all->philo, NULL))
 		return ;
@@ -98,28 +100,10 @@ void	start_philosophers(t_all *all, long number_of_philo)
     if (malloc_error(all->forks, all->philo))
 	    return ;
 	all->start_time = time_in_ms();
-    while (i < number_of_philo)
-    {
-		init_threads(i, all, number_of_philo);
-		pthread_mutex_init(&all->forks[i], NULL);
-        all->philo[i].last_meal_time = all->start_time;
-        i++;
-    }
 	pthread_mutex_init(&all->print_mutex, NULL);
-	i = 0;
-	while (i < number_of_philo)
-    {
-        pthread_create(&all->philo[i].philos, NULL, start_routine, &all->philo[i]);
-        i++;
-    }
-	while (!is_anyone_dead(all))
-        usleep(1000);
-    i = 0;
-    while (i < number_of_philo)
-	{
-        pthread_join(all->philo[i].philos, NULL);
-		i++;
-	}
+	pthread_mutex_init(&all->someone_died_mutex, NULL);
+	pthread_mutex_init(&all->philo->meal_mutex, NULL);
+    init_threads_mutexs(all, number_of_philo, i);
 	free_and_destroy(all);
 }
 
@@ -127,12 +111,12 @@ int	main(int argc, char **argv)
 {
 	int		i;
 	t_all	all;
+	
 	if (argc != 5 && argc != 6)
 	{
 		write(2, "Wrong argument number!\n", 24);
 		return (1);
 	}
-	
     i = 1;
     while (argv[i])
     {
