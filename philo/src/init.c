@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:05:41 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/13 16:28:03 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/13 19:48:19 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,4 +59,29 @@ int	malloc_error(void *philos, void *forks)
 		return (1);
 	}
 	return (0);
+}
+
+void	init_threads_mutexs(t_all *all, long number_of_philo, int i)
+{
+	while (i < number_of_philo)
+    {
+		init_threads(i, all, number_of_philo);
+		pthread_mutex_init(&all->forks[i], NULL);
+        all->philo[i].last_meal_time = all->start_time;
+        i++;
+    }
+	i = 0;
+	while (i < number_of_philo)
+    {
+        pthread_create(&all->philo[i].philos, NULL, start_routine, &all->philo[i]);
+        i++;
+    }
+	while (!is_anyone_dead(all, 0))
+        usleep(1000);
+    i = 0;
+    while (i < number_of_philo)
+	{
+        pthread_join(all->philo[i].philos, NULL);
+		i++;
+	}
 }
