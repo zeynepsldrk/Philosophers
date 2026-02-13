@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/17 17:49:07 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/07 21:48:52 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/13 16:28:33 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,12 +72,12 @@ void	*start_routine(void *arg)
     first_fork = NULL;
     second_fork = NULL;
 	philo = (t_philo*)arg;
-    if (philo->all->number_of_philo == 1) // allways returns true
+    if (philo->all->number_of_philo == 1)
     {
         only_one_philo(philo);
         return NULL;
     }
-    if (philo->all->number_of_philo % 2 == 1)
+    if (philo->all->number_of_philo % 2 == 1 && !(philo->all->number_of_philo == 1))
     {
         if(philo->all->number_of_philo == philo->philo_id)
             usleep(philo->all->time_to_eat * 500); // already waiting for others to drop forks
