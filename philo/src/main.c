@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/17 17:49:07 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/13 19:48:37 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/13 20:46:38 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,40 +27,23 @@ void	print_action(char *str, t_philo *philo, long action_time)
 	if(str_cmp(str, "thinking") == 0)
 		printf("%ld %d is thinking\n", time_in_ms() - philo->all->start_time, philo->philo_id);
 	pthread_mutex_unlock(&philo->all->print_mutex);
-	let_time_pass(philo, action_time, "eating");
-	let_time_pass(philo, action_time, "sleeping");
+	let_time_pass(philo, action_time);
 }
 
 void make_action(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
 {
 	while (!philo->all->someone_died)
 	{
-        which_fork_first(philo, &first_fork, &second_fork);
-        pthread_mutex_lock(first_fork);
-        if (status_check(philo, first_fork, NULL))
-            break;
-		pthread_mutex_lock(&philo->all->print_mutex);
-        printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
-		pthread_mutex_unlock(&philo->all->print_mutex);
-        pthread_mutex_lock(second_fork);
-        if (status_check(philo, first_fork, second_fork))
-            break;
-		pthread_mutex_lock(&philo->all->print_mutex);
-        printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
-		pthread_mutex_unlock(&philo->all->print_mutex);
-		pthread_mutex_lock(&philo->meal_mutex);
-        philo->last_meal_time = time_in_ms();
-        philo->meal_count++;
-		pthread_mutex_unlock(&philo->meal_mutex);
-        print_action("eating", philo, philo->last_meal_time);
-        if (status_check(philo, first_fork, second_fork))
-            break;
-        pthread_mutex_unlock(second_fork);
-        pthread_mutex_unlock(first_fork);
+		if(ft_lonely_eating(philo, first_fork, second_fork))
+			break;
         philo->sleep_start = time_in_ms();
         print_action("sleeping", philo, philo->sleep_start);
-        if (philo->all->someone_died)
+        pthread_mutex_lock(&philo->all->someone_died_mutex);
+		if (philo->all->someone_died)
+		{
+			pthread_mutex_unlock(&philo->all->someone_died_mutex);
             break;
+		}
         print_action("thinking", philo, 0);
 	}
 }
