@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 13:32:26 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/13 19:55:03 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/13 20:46:57 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,8 @@ int	is_anyone_dead(t_all *all, int i)
 		pthread_mutex_lock(&all->philo[i].meal_mutex);
         i++;
     }
-    if (all_eat_enough(all))
-        {
-            all->someone_died = 1;
-            return (1);
-        }
+	if(status_check(all->philo, NULL, NULL))
+		return 1;
     return (0);
 }
 
@@ -59,34 +56,67 @@ int all_eat_enough(t_all *all)
 
 int status_check(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
 {
-    if (philo->all->someone_died)
-    {
-        if (first_fork)
+    pthread_mutex_lock(&philo->all->someone_died_mutex);
+	if (philo->all->someone_died)
+	{
+		if (first_fork)
             pthread_mutex_unlock(first_fork);
         if (second_fork)
             pthread_mutex_unlock(second_fork);
-        return 1;
+        pthread_mutex_unlock(&philo->all->someone_died_mutex);
+		return 1;
+    }
+	if (all_eat_enough(philo->all))
+    {
+		pthread_mutex_lock(&philo->all->someone_died_mutex);
+        philo->all->someone_died = 1;
+		pthread_mutex_unlock(&philo->all->someone_died_mutex);
+    	return (1);
     }
     return 0;
 }
-void let_time_pass(t_philo *philo, long action_time, char *str)
+
+void let_time_pass(t_philo *philo, long action_time)
 {
-	if(str_cmp(str, "sleeping") == 0)
+	long	start_time;
+
+	start_time = time_in_ms();
+	while ((time_in_ms() - start_time) < action_time)
 	{
-		while ((time_in_ms() - action_time) < philo->all->time_to_sleep)
+		pthread_mutex_lock(&philo->all->someone_died_mutex);
+		if (philo->all->someone_died)
 		{
-			if (philo->all->someone_died)
-				break;
-			usleep(500);
+			pthread_mutex_unlock(&philo->all->someone_died_mutex);
+			return ;
 		}
+		pthread_mutex_unlock(&philo->all->someone_died_mutex);
+		usleep(500);
 	}
-	if(str_cmp(str, "eating") == 0)
-	{
-		while ((time_in_ms() - action_time) < philo->all->time_to_eat)
-		{
-			if (philo->all->someone_died)
-				break;
-			usleep(500);
-		}
-	}
+}
+
+int	ft_lonely_eating(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
+{
+	which_fork_first(philo, &first_fork, &second_fork);
+	pthread_mutex_lock(first_fork);
+	if (status_check(philo, first_fork, NULL))
+		return 1;
+	pthread_mutex_lock(&philo->all->print_mutex);
+	printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
+	pthread_mutex_unlock(&philo->all->print_mutex);
+	pthread_mutex_lock(second_fork);
+	if (status_check(philo, first_fork, second_fork))
+		return 1;
+	pthread_mutex_lock(&philo->all->print_mutex);
+	printf("%ld %d has taken a fork\n", time_in_ms() - philo->all->start_time, philo->philo_id);
+	pthread_mutex_unlock(&philo->all->print_mutex);
+	pthread_mutex_lock(&philo->meal_mutex);
+	philo->last_meal_time = time_in_ms();
+	philo->meal_count++;
+	pthread_mutex_unlock(&philo->meal_mutex);
+	print_action("eating", philo, philo->last_meal_time);
+	if (status_check(philo, first_fork, second_fork))
+		return 1;
+	pthread_mutex_unlock(second_fork);
+	pthread_mutex_unlock(first_fork);
+	return 0;
 }
