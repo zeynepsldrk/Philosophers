@@ -6,29 +6,31 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 13:32:26 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/07 21:45:02 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/13 19:55:03 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	is_anyone_dead(t_all *all)
+int	is_anyone_dead(t_all *all, int i)
 {
-	int i;
     long current_time;
 
-    i = 0;
     while (i < all->number_of_philo)
     {
+		pthread_mutex_lock(&all->philo[i].meal_mutex);
         current_time = time_in_ms();
-        if ((current_time - all->philo[i].last_meal_time) > all->time_to_die) // a gloabal (struct) variable for checking is a philo died
+        if ((current_time - all->philo[i].last_meal_time) > all->time_to_die)
         {
-			pthread_mutex_lock(&all->print_mutex); // nobody unlocks the mutex (print)
+			pthread_mutex_lock(&all->print_mutex);
             printf("%ld %d died\n", current_time - all->start_time, all->philo[i].philo_id);
+			pthread_mutex_lock(&all->someone_died_mutex);
             all->someone_died = 1;
+			pthread_mutex_unlock(&all->someone_died_mutex);
 			pthread_mutex_unlock(&all->print_mutex);
             return (1);
         }
+		pthread_mutex_lock(&all->philo[i].meal_mutex);
         i++;
     }
     if (all_eat_enough(all))
