@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:05:41 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/07 16:29:30 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/13 16:28:03 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ void	init_threads(int i, t_all *all, int number_of_philo)
     all->philo[i].r_fork_id = (i + 1) % number_of_philo;
 	all->philo[i].meal_count = 0;
 	all->philo[i].all = all;
+	all->someone_died = 0;
 }
 
 int	malloc_error(void *philos, void *forks)
