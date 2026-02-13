@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 16:47:11 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/13 19:46:12 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/13 20:47:23 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,32 +24,32 @@ typedef struct s_philo t_philo;
 
 typedef struct s_all_things
 {
-    int number_of_philo;
-    long time_to_die;
-    long time_to_eat;
-    long time_to_sleep;
-    int times_each_philo_must_eat;
-    t_philo *philo;
-    pthread_mutex_t *forks;
-    long start_time;
-	int someone_died;
-	pthread_mutex_t print_mutex;
-	pthread_mutex_t someone_died_mutex;
+    int				number_of_philo;
+    long			time_to_die;
+    long			time_to_eat;
+    long			time_to_sleep;
+    int				times_each_philo_must_eat;
+    t_philo			*philo;
+    pthread_mutex_t	*forks;
+    long			start_time;
+	int				someone_died;
+	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	someone_died_mutex;
 } t_all;
 
 typedef struct s_philo
 {
-    pthread_t philos;
-    int philo_id;
-    pthread_mutex_t *left_fork;
-    pthread_mutex_t *right_fork;
-	int l_fork_id;
-	int r_fork_id;
-    long meal_count;
-	long last_meal_time;
-    long sleep_start;
-	pthread_mutex_t meal_mutex;
-    t_all *all;
+    pthread_t		philos;
+    int				philo_id;
+    pthread_mutex_t	*left_fork;
+    pthread_mutex_t	*right_fork;
+	int				l_fork_id;
+	int				r_fork_id;
+    long			meal_count;
+	long			last_meal_time;
+    long			sleep_start;
+	pthread_mutex_t	meal_mutex;
+    t_all			*all;
 } t_philo;
 
 
@@ -69,7 +69,8 @@ void	only_one_philo(t_philo *philo);
 void	make_action(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork);
 void	which_fork_first(t_philo *philo, pthread_mutex_t **first_fork, pthread_mutex_t **second_fork);
 int		status_check(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork);
-void	let_time_pass(t_philo *philo, long action_time, char *str);
+void	let_time_pass(t_philo *philo, long action_time);
 void	init_threads_mutexs(t_all *all, long number_of_philo, int i);
+int		ft_lonely_eating(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork);
 
 #endif
