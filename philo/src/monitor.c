@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 13:32:26 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/13 20:46:57 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/14 20:23:11 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,7 @@ int	is_anyone_dead(t_all *all, int i)
 		pthread_mutex_lock(&all->philo[i].meal_mutex);
         i++;
     }
-	if(status_check(all->philo, NULL, NULL))
-		return 1;
-    return (0);
+	return (status_check(all->philo, NULL, NULL));
 }
 
 int all_eat_enough(t_all *all)
@@ -47,8 +45,13 @@ int all_eat_enough(t_all *all)
     i = 0;
     while (i < all->number_of_philo)
     {
+		pthread_mutex_lock(&all->philo->meal_mutex);
         if (all->philo[i].meal_count < all->times_each_philo_must_eat)
-            return (0);
+		{
+			pthread_mutex_unlock(&all->philo->meal_mutex);
+			return (0);
+		}
+		pthread_mutex_unlock(&all->philo->meal_mutex);
         i++;
     }
     return (1);
@@ -66,11 +69,16 @@ int status_check(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *s
         pthread_mutex_unlock(&philo->all->someone_died_mutex);
 		return 1;
     }
+	pthread_mutex_unlock(&philo->all->someone_died_mutex);
 	if (all_eat_enough(philo->all))
     {
 		pthread_mutex_lock(&philo->all->someone_died_mutex);
         philo->all->someone_died = 1;
 		pthread_mutex_unlock(&philo->all->someone_died_mutex);
+		if (first_fork)
+            pthread_mutex_unlock(first_fork);
+        if (second_fork)
+            pthread_mutex_unlock(second_fork);
     	return (1);
     }
     return 0;
@@ -93,7 +101,6 @@ void let_time_pass(t_philo *philo, long action_time)
 		usleep(500);
 	}
 }
-
 int	ft_lonely_eating(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
 {
 	which_fork_first(philo, &first_fork, &second_fork);
