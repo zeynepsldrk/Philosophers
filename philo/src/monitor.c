@@ -28,9 +28,10 @@ int	is_anyone_dead(t_all *all, int i)
             all->someone_died = 1;
 			pthread_mutex_unlock(&all->someone_died_mutex);
 			pthread_mutex_unlock(&all->print_mutex);
+            pthread_mutex_lock(&all->philo[i].meal_mutex);
             return (1);
         }
-		pthread_mutex_lock(&all->philo[i].meal_mutex);
+		pthread_mutex_unlock(&all->philo[i].meal_mutex);
         i++;
     }
 	return (status_check(all->philo, NULL, NULL));
@@ -101,6 +102,7 @@ void let_time_pass(t_philo *philo, long action_time)
 		usleep(500);
 	}
 }
+
 int	ft_lonely_eating(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
 {
 	which_fork_first(philo, &first_fork, &second_fork);
@@ -118,11 +120,11 @@ int	ft_lonely_eating(t_philo *philo, pthread_mutex_t *first_fork, pthread_mutex_
 	pthread_mutex_unlock(&philo->all->print_mutex);
 	pthread_mutex_lock(&philo->meal_mutex);
 	philo->last_meal_time = time_in_ms();
-	philo->meal_count++;
 	pthread_mutex_unlock(&philo->meal_mutex);
 	print_action("eating", philo, philo->last_meal_time);
-	if (status_check(philo, first_fork, second_fork))
-		return 1;
+    pthread_mutex_lock(&philo->meal_mutex);
+	philo->meal_count++;
+	pthread_mutex_unlock(&philo->meal_mutex);
 	pthread_mutex_unlock(second_fork);
 	pthread_mutex_unlock(first_fork);
 	return 0;
