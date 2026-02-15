@@ -23,7 +23,7 @@ void	print_action(char *str, t_philo *philo, long action_time)
 		pthread_mutex_unlock(&philo->all->print_mutex);
 		return ;
 	}
-	if (str_cmp(str, "thinking") == 0)
+	if (str_cmp(str, "is thinking") == 0)
 		printf("%ld %d %s\n", time_in_ms() - philo->all->start_time, id, B);
 	else
 		printf("%ld %d %s\n", action_time - philo->all->start_time, id, str);
@@ -49,7 +49,7 @@ void	make_action(t_philo *philo, pthread_mutex_t *f1, pthread_mutex_t *f2)
 			break ;
 		philo->sleep_start = time_in_ms();
 		print_action("is sleeping", philo, philo->sleep_start);
-		print_action("is thinking", philo, 0);
+		print_action("is thinking", philo, time_in_ms());
 	}
 }
 
@@ -68,7 +68,7 @@ void	*start(void *arg)
 	}
 	if (philo->all->number_of_philo % 2 == 1)
 	{
-		if (philo->all->number_of_philo == philo->philo_id)
+		//if (philo->all->number_of_philo == philo->philo_id)
 			usleep(philo->all->time_to_eat * 500);
 	}
 	make_action(philo, first_fork, second_fork);
