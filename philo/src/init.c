@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:05:41 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/15 15:03:45 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/16 13:24:49 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ void	init_threads_mutexs(t_all *all, long number_of_philo, int i)
 		i++;
 	}
 	while (!is_anyone_dead(all, 0))
-		usleep(1000);
+		usleep(200);
 	pthread_mutex_lock(&all->someone_died_mutex);
 	all->someone_died = 1;
 	pthread_mutex_unlock(&all->someone_died_mutex);

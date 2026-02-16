@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 13:46:09 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/15 17:49:50 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/16 20:25:39 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void	free_and_destroy(t_all *all)
 	while (count)
 	{
 		pthread_mutex_destroy(&all->forks[i]);
-		pthread_mutex_destroy(&all->philo->meal_mutex);
+		pthread_mutex_destroy(&all->philo[i].meal_mutex);
 		i++;
 		count--;
 	}

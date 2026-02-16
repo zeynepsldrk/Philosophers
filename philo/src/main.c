@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/17 17:49:07 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/15 15:03:50 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/16 14:15:37 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,15 @@ void	print_action(char *str, t_philo *philo, long action_time)
 
 	id = philo->philo_id;
 	pthread_mutex_lock(&philo->all->print_mutex);
+	pthread_mutex_lock(&philo->all->someone_died_mutex);
 	if (philo->all->someone_died)
 	{
+		pthread_mutex_unlock(&philo->all->someone_died_mutex);
 		pthread_mutex_unlock(&philo->all->print_mutex);
 		return ;
 	}
-	if (str_cmp(str, "is thinking") == 0)
-		printf("%ld %d %s\n", time_in_ms() - philo->all->start_time, id, B);
-	else
-		printf("%ld %d %s\n", action_time - philo->all->start_time, id, str);
+	pthread_mutex_unlock(&philo->all->someone_died_mutex);
+	printf("%ld %d %s\n", action_time - philo->all->start_time, id, str);
 	pthread_mutex_unlock(&philo->all->print_mutex);
 	if (str_cmp(str, "is eating") == 0)
 		let_time_pass(philo, philo->all->time_to_eat);
@@ -50,6 +50,8 @@ void	make_action(t_philo *philo, pthread_mutex_t *f1, pthread_mutex_t *f2)
 		philo->sleep_start = time_in_ms();
 		print_action("is sleeping", philo, philo->sleep_start);
 		print_action("is thinking", philo, time_in_ms());
+		if (philo->all->number_of_philo % 2 == 1)
+			usleep(500);
 	}
 }
 
@@ -66,11 +68,8 @@ void	*start(void *arg)
 		only_one_philo(philo);
 		return (NULL);
 	}
-	if (philo->all->number_of_philo % 2 == 1)
-	{
-		//if (philo->all->number_of_philo == philo->philo_id)
-			usleep(philo->all->time_to_eat * 500);
-	}
+	if (philo->philo_id % 2 == 0)
+		usleep(1000);
 	make_action(philo, first_fork, second_fork);
 	return (NULL);
 }
@@ -86,9 +85,9 @@ void	start_philosophers(t_all *all, long number_of_philo)
 	all->forks = malloc(sizeof(pthread_mutex_t) * number_of_philo);
 	if (malloc_error(all->forks, all->philo))
 		return ;
-	all->start_time = time_in_ms();
 	pthread_mutex_init(&all->print_mutex, NULL);
 	pthread_mutex_init(&all->someone_died_mutex, NULL);
+	all->start_time = time_in_ms();
 	init_threads_mutexs(all, number_of_philo, i);
 	free_and_destroy(all);
 }

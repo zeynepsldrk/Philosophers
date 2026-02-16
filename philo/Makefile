@@ -4,8 +4,8 @@ SRCS = src/main.c src/utils.c src/init.c src/monitor.c
 OBJS = $(SRCS:.c=.o)
 
 INCLUDES = -I include
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror   #-fsanitize=address
+CC = cc
+CFLAGS = -Wall -Wextra -Werror
 
 all: $(NAME)
 

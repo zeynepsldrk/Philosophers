@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 13:32:26 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/15 15:04:22 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/16 13:53:56 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ void	let_time_pass(t_philo *philo, long action_time)
 			return ;
 		}
 		pthread_mutex_unlock(&philo->all->someone_died_mutex);
-		usleep(500);
+		usleep(100);
 	}
 }
 
@@ -111,15 +111,11 @@ int	ft_eating(t_philo *p, pthread_mutex_t *f1, pthread_mutex_t *f2)
 	pthread_mutex_lock(f1);
 	if (status_check(p, f1, NULL))
 		return (1);
-	pthread_mutex_lock(&p->all->print_mutex);
-	printf("%ld %d %s\n", time_in_ms() - p->all->start_time, p->philo_id, A);
-	pthread_mutex_unlock(&p->all->print_mutex);
+	print_action("has taken a fork", p, time_in_ms());
 	pthread_mutex_lock(f2);
 	if (status_check(p, f1, f2))
 		return (1);
-	pthread_mutex_lock(&p->all->print_mutex);
-	printf("%ld %d %s\n", time_in_ms() - p->all->start_time, p->philo_id, A);
-	pthread_mutex_unlock(&p->all->print_mutex);
+	print_action("has taken a fork", p, time_in_ms());
 	pthread_mutex_lock(&p->meal_mutex);
 	p->last_meal_time = time_in_ms();
 	pthread_mutex_unlock(&p->meal_mutex);
