@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/17 17:49:07 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/16 14:15:37 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/21 11:32:27 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,8 @@ int	main(int argc, char **argv)
 	{
 		if (!ft_isdigit(argv[i]))
 			return (write(2, "Invalid argument!\n", 19));
+		if (ft_modified_atol(argv[i]) == -1)
+			return (write(2, "Overflow!\n", 11));
 		i++;
 	}
 	all.number_of_philo = ft_modified_atol(argv[1]);
