@@ -6,7 +6,7 @@
 /*   By: zedurak <zedurak@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 13:46:09 by zedurak           #+#    #+#             */
-/*   Updated: 2026/02/16 20:25:39 by zedurak          ###   ########.fr       */
+/*   Updated: 2026/02/21 11:28:20 by zedurak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ long	ft_modified_atol(char *str)
 	{
 		last_digit = *str - '0';
 		if (result > (2147483647 - last_digit) / 10)
-			write(2, "Overflow!\n", 10);
+			return (-1);
 		result = result * 10 + last_digit;
 		str++;
 	}
