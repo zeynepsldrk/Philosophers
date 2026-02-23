@@ -107,7 +107,6 @@ void	let_time_pass(t_philo *philo, long action_time)
 
 int	ft_eating(t_philo *p, pthread_mutex_t *f1, pthread_mutex_t *f2)
 {
-	which_fork(p, &f1, &f2);
 	pthread_mutex_lock(f1);
 	if (status_check(p, f1, NULL))
 		return (1);
