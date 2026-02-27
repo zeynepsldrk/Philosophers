@@ -17,6 +17,10 @@ int	ft_isdigit(char *str)
 	int	i;
 
 	i = 0;
+    if (ft_modified_atol(str) == 0 || ft_modified_atol(str) > 500)
+    {
+        return (0);
+    }
 	while (str[i])
 	{
 		if (!(str[i] >= '0' && str[i] <= '9'))
