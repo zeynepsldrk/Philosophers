@@ -102,7 +102,7 @@ int	main(int argc, char **argv)
 	i = 1;
 	while (argv[i])
 	{
-		if (!ft_isdigit(argv[i]))
+		if (!ft_isdigit(argv[i], i))
 			return (write(2, "Invalid argument!\n", 19));
 		if (ft_modified_atol(argv[i]) == -1)
 			return (write(2, "Overflow!\n", 11));

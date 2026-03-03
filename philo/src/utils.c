@@ -12,12 +12,14 @@
 
 #include "philo.h"
 
-int	ft_isdigit(char *str)
+int	ft_isdigit(char *str, int a)
 {
 	int	i;
 
 	i = 0;
-    if (ft_modified_atol(str) == 0 || ft_modified_atol(str) > 500)
+    if (a == 1 && (ft_modified_atol(str) == 0 || ft_modified_atol(str) > 450))
+        return (0);
+    if (a == 5 && ft_modified_atol(str) == 0)
     {
         return (0);
     }

@@ -55,7 +55,7 @@ typedef struct s_philo
 	t_all			*all;
 }	t_philo;
 
-int		ft_isdigit(char *str);
+int		ft_isdigit(char *str, int a);
 long	ft_modified_atol(char *str);
 int		str_cmp(char *s1, char *s2);
 void	free_and_destroy(t_all *all);
